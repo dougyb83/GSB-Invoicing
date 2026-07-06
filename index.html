@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GSB Logistics Invoice</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:30px;
+    background:#efefef;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+.toolbar{
+    width:210mm;
+    margin:0 auto 20px auto;
+    text-align:right;
+}
+
+.toolbar button{
+    background:#0b7788;
+    color:white;
+    border:none;
+    padding:12px 24px;
+    cursor:pointer;
+    font-size:15px;
+    border-radius:4px;
+}
+
+.invoice{
+
+    width:210mm;
+    min-height:297mm;
+
+    margin:auto;
+
+    background:white;
+
+    padding:22mm;
+
+    box-shadow:0 0 15px rgba(0,0,0,.15);
+
+}
+
+/* ── Header ── */
+
+.logoRow{
+
+    display:flex;
+    justify-content:flex-start;
+    align-items:flex-start;
+    margin-bottom:0;
+
+}
+
+.logo img{
+
+    width:200px;
+    max-width:100%;
+
+}
+
+.headerRule{
+
+    border:none;
+    border-top:1px solid #ddd;
+    margin:14px 0;
+
+}
+
+.headerMeta{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:28px;
+
+}
+
+.companyName{
+
+    font-size:20px;
+    font-weight:bold;
+    color:#222;
+
+}
+
+.invoiceWord{
+
+    font-size:28px;
+    font-weight:bold;
+    letter-spacing:2px;
+    color:#222;
+
+}
+
+/* ── Top section ── */
+
+.topSection{
+
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:40px;
+
+}
+
+.billTo{
+
+    width:50%;
+
+}
+
+.billTo h3{
+
+    margin:0 0 8px 0;
+    font-size:12px;
+    font-weight:bold;
+    color:#0d7889;
+    letter-spacing:0.5px;
+
+}
+
+#billToName{
+
+    font-size:17px;
+    font-weight:bold;
+    color:#222;
+    margin-bottom:4px;
+
+}
+
+#billToAddress{
+
+    font-size:13px;
+    color:#666;
+    line-height:1.6;
+    white-space:pre-wrap;
+
+}
+
+.details{
+
+    width:260px;
+
+}
+
+.details table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+.details td{
+
+    padding:6px 0;
+    font-size:13px;
+
+}
+
+.details td:first-child{
+
+    font-weight:bold;
+    color:#0d7889;
+
+}
+
+/* Editable spans in details panel — no bottom border */
+.details span[contenteditable]{
+    display:block;
+    width:100%;
+    text-align:right;
+    font-size:14px;
+    padding-bottom:2px;
+}
+
+/* ── Items table ── */
+
+.items{
+
+    width:100%;
+    border-collapse:collapse;
+    margin-top:0;
+
+}
+
+.items thead{
+
+    background:#0d7889;
+    color:white;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+
+}
+
+.items th{
+
+    padding:10px 12px;
+    text-align:left;
+    font-weight:normal;
+    font-size:14px;
+
+}
+
+.items td{
+
+    padding:10px 12px;
+    border-bottom:1px solid #ddd;
+
+}
+
+/* Multi-line description cells */
+.description[contenteditable]{
+    display:block;
+    width:100%;
+    min-height:1.5em;
+    font-size:15px;
+    line-height:1.5;
+    white-space:pre-wrap;
+}
+
+/* Numeric cells */
+.items span[contenteditable],
+.items span.lineTotal{
+    display:block;
+    width:100%;
+    font-size:15px;
+    text-align:right;
+}
+
+.number{
+
+    text-align:right;
+
+}
+
+.small{
+
+    width:90px;
+
+}
+
+.medium{
+
+    width:110px;
+
+}
+
+.vatCol{
+
+    width:80px;
+
+}
+
+.amount{
+
+    width:110px;
+
+}
+
+/* Delete-button column — hidden on print */
+.delCol{
+
+    width:44px;
+    padding:4px !important;
+
+}
+
+.addRow{
+
+    margin-top:12px;
+    background:#0d7889;
+    color:white;
+    border:none;
+    padding:8px 18px;
+    cursor:pointer;
+    border-radius:4px;
+
+}
+
+.removeRow{
+
+    background:#b33;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    cursor:pointer;
+    border-radius:4px;
+
+}
+
+/* ── Totals ── */
+
+.totals{
+
+    width:340px;
+    margin-left:auto;
+    margin-top:30px;
+
+}
+
+.totals table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+.totals td{
+
+    padding:8px 12px;
+    font-size:14px;
+    border-bottom:1px solid #eee;
+
+}
+
+.totals td:first-child{
+
+    font-weight:bold;
+    color:#444;
+    width:55%;
+    text-align:right;
+
+}
+
+/* Read-only and editable spans in totals panel */
+.totals span{
+    display:block;
+    width:100%;
+    text-align:right;
+    font-size:14px;
+    background:transparent;
+}
+
+/* ── Balance Due — full width ── */
+
+.balanceRow{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#222;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    padding:16px 20px;
+    margin-top:12px;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+
+}
+
+/* ── Global contenteditable ── */
+
+[contenteditable]{
+    outline:none;
+    cursor:text;
+}
+
+[contenteditable]:focus{
+    outline:1px solid rgba(13,120,137,0.35);
+    border-radius:2px;
+}
+
+/* ── Print footer (date/time) — hidden on screen ── */
+
+#printFooter{
+    display:none;
+}
+
+/* ── Print ── */
+
+@page{
+    margin:15mm;
+}
+
+@media print{
+
+    body{
+        background:white;
+        padding:0;
+    }
+
+    .toolbar{
+        display:none;
+    }
+
+    .invoice{
+        width:100%;
+        min-height:auto;
+        margin:0;
+        box-shadow:none;
+        padding:0;
+    }
+
+    #printFooter{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-top:24px;
+        font-size:11px;
+        color:#888;
+    }
+
+    [contenteditable]:focus{
+        outline:none;
+    }
+
+    .details span[contenteditable]{
+        border-bottom:none;
+    }
+
+    /* Hide editing controls */
+    .addRow{
+        display:none;
+    }
+
+    .removeRow{
+        display:none;
+    }
+
+    .delCol{
+        display:none;
+    }
+
+    /* Teal table header */
+    .items thead,
+    .items thead tr,
+    .items thead th{
+        print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+        background:#0d7889 !important;
+        color:white !important;
+    }
+
+    /* Full-width balance row */
+    .balanceRow{
+        print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+        background:#222 !important;
+        color:white !important;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="toolbar">
+
+    <button onclick="window.print()">Print / Save PDF</button>
+
+</div>
+
+<div class="invoice">
+
+<!-- Logo row -->
+<div class="logoRow">
+    <div class="logo">
+        <img src="logo.png" alt="GSB Logistics">
+    </div>
+</div>
+
+<hr class="headerRule">
+
+<!-- Company name + INVOICE word -->
+<div class="headerMeta">
+    <span class="companyName">GSB Logistics</span>
+    <span class="invoiceWord">INVOICE</span>
+</div>
+
+<!-- Bill To + Details -->
+<div class="topSection">
+
+<div class="billTo">
+
+<h3>BILL TO:</h3>
+
+<div id="billToName" contenteditable="true">EVS Facilities</div>
+
+<div id="billToAddress" contenteditable="true">The Old Sawmills
+Defynnog Road
+Sennybridge
+Brecon
+LD3 8RS</div>
+
+</div>
+
+<div class="details">
+
+<table>
+
+<tr>
+<td>NUMBER:</td>
+<td><span id="invoiceNumber" contenteditable="true">INV0001</span></td>
+</tr>
+
+<tr>
+<td>DATE:</td>
+<td><span id="invoiceDate" contenteditable="true">10 Jul 2026</span></td>
+</tr>
+
+<tr>
+<td>DUE DATE:</td>
+<td><span id="dueDate" contenteditable="true">On receipt</span></td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- Line items -->
+<table class="items">
+
+<thead>
+<tr>
+<th>Description</th>
+<th class="small number">Quantity</th>
+<th class="medium number">Unit price</th>
+<th class="vatCol number">VAT</th>
+<th class="amount number">Amount</th>
+<th class="delCol"></th>
+</tr>
+</thead>
+
+<tbody id="rows">
+
+<tr>
+
+<td>
+<div class="description" contenteditable="true">GSB Logistics</div>
+</td>
+
+<td>
+<span class="qty number" contenteditable="true">8</span>
+</td>
+
+<td>
+<span class="price number" contenteditable="true">16.00</span>
+</td>
+
+<td>
+<span class="vat number" contenteditable="true">0.0 %</span>
+</td>
+
+<td>
+<span class="lineTotal number"></span>
+</td>
+
+<td class="delCol">
+<button class="removeRow" onclick="removeRow(this)">&times;</button>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button class="addRow" onclick="addRow()">Add Line</button>
+
+<!-- Totals -->
+<div class="totals">
+
+<table>
+
+<tr>
+<td>SUBTOTAL:</td>
+<td><span id="subtotal"></span></td>
+</tr>
+
+<tr>
+<td>VAT:</td>
+<td><span id="vatTotal"></span></td>
+</tr>
+
+<tr>
+<td>TOTAL:</td>
+<td><span id="grandTotal"></span></td>
+</tr>
+
+<tr>
+<td>PAID:</td>
+<td><span id="paid" contenteditable="true">0.00</span></td>
+</tr>
+
+</table>
+
+</div>
+
+<!-- Balance Due — full width -->
+<div class="balanceRow">
+    <span>BALANCE DUE</span>
+    <span id="balance"></span>
+</div>
+
+<!-- Print footer — populated by JS, visible only on print -->
+<div id="printFooter">
+    <span id="printDate"></span>
+    <span>GSB Logistics Invoice</span>
+</div>
+
+<script>
+
+const tbody=document.getElementById("rows");
+
+function money(v){
+    return "£"+Number(v).toFixed(2);
+}
+
+function txt(el){
+    return el ? el.textContent.trim() : "";
+}
+
+function num(el){
+    return parseFloat(txt(el).replace(/[^0-9.\-]/g,"")) || 0;
+}
+
+function updateTotals(){
+
+    let subtotal=0;
+    let vatTotal=0;
+
+    document.querySelectorAll("#rows tr").forEach(row=>{
+
+        const qty  =num(row.querySelector(".qty"));
+        const price=num(row.querySelector(".price"));
+        const vat  =num(row.querySelector(".vat"));
+
+        const line   =qty*price;
+        const lineVat=line*(vat/100);
+
+        row.querySelector(".lineTotal").textContent=money(line);
+
+        subtotal+=line;
+        vatTotal+=lineVat;
+
+    });
+
+    const total  =subtotal+vatTotal;
+    const paid   =num(document.getElementById("paid"));
+    const balance=total-paid;
+
+    document.getElementById("subtotal").textContent  =money(subtotal);
+    document.getElementById("vatTotal").textContent  =money(vatTotal);
+    document.getElementById("grandTotal").textContent=money(total);
+    document.getElementById("balance").textContent   =money(balance);
+
+}
+
+function addRow(){
+
+    const row=document.createElement("tr");
+
+    row.innerHTML=`
+<td><div class="description" contenteditable="true"></div></td>
+<td><span class="qty number" contenteditable="true">1</span></td>
+<td><span class="price number" contenteditable="true">0.00</span></td>
+<td><span class="vat number" contenteditable="true">0.0 %</span></td>
+<td><span class="lineTotal number"></span></td>
+<td class="delCol"><button class="removeRow" onclick="removeRow(this)">&times;</button></td>
+`;
+
+    tbody.appendChild(row);
+
+    bindInputs();
+
+    updateTotals();
+
+}
+
+function removeRow(button){
+
+    if(document.querySelectorAll("#rows tr").length===1)
+        return;
+
+    button.closest("tr").remove();
+
+    updateTotals();
+
+}
+
+function bindInputs(){
+
+    document.querySelectorAll(
+        ".qty,.price,.vat,#paid"
+    ).forEach(el=>{
+
+        el.removeEventListener("input",updateTotals);
+        el.addEventListener("input",updateTotals);
+
+    });
+
+}
+
+/* Prevent Enter creating a new line in single-line fields */
+document.addEventListener("keydown",function(e){
+    if(e.key==="Enter" && e.target.matches(
+        "#invoiceNumber,#invoiceDate,#dueDate,.qty,.price,.vat,#paid"
+    )){
+        e.preventDefault();
+        e.target.blur();
+    }
+});
+
+/* Strip HTML on paste — insert plain text only */
+document.addEventListener("paste",function(e){
+    if(!e.target.isContentEditable) return;
+    e.preventDefault();
+    const text=(e.clipboardData||window.clipboardData).getData("text/plain");
+    document.execCommand("insertText",false,text);
+});
+
+/* Normalise number formatting when leaving a field */
+document.addEventListener("blur",function(e){
+    const el=e.target;
+    if(el.matches(".price,#paid")){
+        el.textContent=num(el).toFixed(2);
+    } else if(el.matches(".qty")){
+        el.textContent=String(num(el));
+    } else if(el.matches(".vat")){
+        el.textContent=num(el).toFixed(1)+" %";
+    }
+    if(el.matches(".price,.qty,.vat,#paid")) updateTotals();
+},true);
+
+/* Stamp the print footer with the current date and time */
+(function(){
+    const now=new Date();
+    const opts={day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"};
+    document.getElementById("printDate").textContent=
+        "Printed: "+now.toLocaleString("en-GB",opts);
+})();
+
+bindInputs();
+
+updateTotals();
+
+</script>
+
+</div>
+
+</body>
+</html>
